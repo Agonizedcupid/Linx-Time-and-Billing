@@ -1,39 +1,49 @@
 package com.aariyan.linxtimeandbilling.Model;
 
 public class UserListModel {
-    private int id;
-    private String userName;
-    private String userPassword;
+    private String uID;
+    private String strPinCode;
+    private String strName;
+    private String intCompanyID;
 
     public UserListModel() {}
 
-    public UserListModel(int id, String userName, String userPassword) {
-        this.id = id;
-        this.userName = userName;
-        this.userPassword = userPassword;
+    public UserListModel(String uID, String strPinCode, String strName, String intCompanyID) {
+        this.uID = uID;
+        this.strPinCode = strPinCode;
+        this.strName = strName;
+        this.intCompanyID = intCompanyID;
     }
 
-    public int getId() {
-        return id;
+    public String getuID() {
+        return uID;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setuID(String uID) {
+        this.uID = uID;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getStrPinCode() {
+        return strPinCode;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setStrPinCode(String strPinCode) {
+        this.strPinCode = strPinCode;
     }
 
-    public String getUserPassword() {
-        return userPassword;
+    public String getStrName() {
+        return strName;
     }
 
-    public void setUserPassword(String userPassword) {
-        this.userPassword = userPassword;
+    public void setStrName(String strName) {
+        this.strName = strName;
+    }
+
+    public String getIntCompanyID() {
+        return intCompanyID;
+    }
+
+    public void setIntCompanyID(String intCompanyID) {
+        this.intCompanyID = intCompanyID;
     }
 }

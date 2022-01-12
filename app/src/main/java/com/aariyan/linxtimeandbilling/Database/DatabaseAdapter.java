@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -34,19 +35,6 @@ public class DatabaseAdapter {
     public long insertUserData(String uID, String pinCode, String name, String companyId) {
 
         SQLiteDatabase database = helper.getWritableDatabase();
-        //drop the table if exist:
-        //Create table:
-        try {
-
-            if (vendorCheck == 0) {
-                database.execSQL(DatabaseHelper.DROP_VENDORS_TABLE);
-                database.execSQL(DatabaseHelper.CREATE_VENDORS_TABLE);
-            }
-            vendorCheck++;
-        } catch (Exception e) {
-            e.printStackTrace();
-
-        }
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(DatabaseHelper.uID, uID);
@@ -60,26 +48,25 @@ public class DatabaseAdapter {
 
     //Get all data from vendor table:
     //Only for Vendor table
-//    public List<UserListModel> getAllData() {
-//
-//        list.clear();
-//        SQLiteDatabase database = helper.getWritableDatabase();
-//        String[] columns = {DatabaseHelper.UID, DatabaseHelper.NAME, DatabaseHelper.DESCRIPTION};
-//        Cursor cursor = database.query(DatabaseHelper.VENDORS_TABLE_NAME, columns, null, null, null, null, null);
-//
-//        StringBuffer buffer = new StringBuffer();
-//        while (cursor.moveToNext()) {
-//
-//            GoodsModel model = new GoodsModel(
-//                    cursor.getString(1),
-//                    cursor.getString(2)
-//            );
-//            list.add(model);
-//        }
-//
-//        return list;
-//
-//    }
+    public List<UserListModel> getUserData() {
+
+        list.clear();
+        SQLiteDatabase database = helper.getWritableDatabase();
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.uID, DatabaseHelper.strPinCode, DatabaseHelper.strName, DatabaseHelper.intCompanyID};
+        Cursor cursor = database.query(DatabaseHelper.USER_TABLE_NAME, columns, null, null, null, null, null);
+        while (cursor.moveToNext()) {
+
+            UserListModel model = new UserListModel(
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(4)
+            );
+            list.add(model);
+        }
+        return list;
+
+    }
 
 
     public int updatePoLines(String name, int quantity) {
@@ -121,13 +108,13 @@ public class DatabaseAdapter {
         private static final String strName = "strName";
         private static final String intCompanyID = "strVendDesc";
         //Creating the table:
-        private static final String CREATE_VENDORS_TABLE = "CREATE TABLE " + USER_TABLE_NAME
+        private static final String CREATE_USER_TABLE = "CREATE TABLE " + USER_TABLE_NAME
                 + " (" + UID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + uID + " VARCHAR(255),"
                 + strPinCode + " VARCHAR(255),"
                 + strName + " VARCHAR(255),"
                 + intCompanyID + " VARCHAR(255));";
-        private static final String DROP_VENDORS_TABLE = "DROP TABLE IF EXISTS " + USER_TABLE_NAME;
+        private static final String DROP_USER_TABLE = "DROP TABLE IF EXISTS " + USER_TABLE_NAME;
 
         //PO Header:
         private static final String PO_HEADER_TABLE_NAME = "po_header";
@@ -216,7 +203,7 @@ public class DatabaseAdapter {
         public void onCreate(SQLiteDatabase db) {
             //Create table:
             try {
-                db.execSQL(CREATE_VENDORS_TABLE);
+                db.execSQL(CREATE_USER_TABLE);
                 db.execSQL(CREATE_PO_HEADER_TABLE);
                 db.execSQL(CREATE_PO_LINE_TABLE);
             } catch (Exception e) {
@@ -228,7 +215,7 @@ public class DatabaseAdapter {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             try {
-                db.execSQL(DROP_VENDORS_TABLE);
+                db.execSQL(DROP_USER_TABLE);
                 db.execSQL(DROP_PO_HEADER_TABLE);
                 db.execSQL(DROP_PO_LINE_TABLE);
                 onCreate(db);
