@@ -10,4 +10,7 @@ public interface APIs {
     @GET("getusers.php?")
     Call<ResponseBody> getUsers(@Query("id") String id);
 
+    @GET("getcustomers.php?")
+    Call<ResponseBody> getCustomers(@Query("id") String id);
+
 }

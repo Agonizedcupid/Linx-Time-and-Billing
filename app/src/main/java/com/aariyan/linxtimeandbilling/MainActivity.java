@@ -6,8 +6,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,9 +19,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.aariyan.linxtimeandbilling.Activity.HomeActivity;
 import com.aariyan.linxtimeandbilling.Adapter.UserListAdapter;
 import com.aariyan.linxtimeandbilling.Database.DatabaseAdapter;
 import com.aariyan.linxtimeandbilling.Interface.Authentication;
+import com.aariyan.linxtimeandbilling.Model.CustomerModel;
 import com.aariyan.linxtimeandbilling.Model.UserListModel;
 import com.aariyan.linxtimeandbilling.Network.APIs;
 import com.aariyan.linxtimeandbilling.Network.ApiClient;
@@ -55,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements Authentication {
 
     private ProgressBar progressBar;
 
+    //Customers:
+    private List<CustomerModel> listOfCustomer = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +73,39 @@ public class MainActivity extends AppCompatActivity implements Authentication {
         databaseAdapter = new DatabaseAdapter(MainActivity.this);
 
         intiUI();
+    }
+
+    private void getCustomers() {
+        APIs apIs = ApiClient.getClient().create(APIs.class);
+        Call<ResponseBody> call = apIs.getCustomers("7");
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+
+                    JSONArray root = new JSONArray(response.body().string());
+                    for (int i = 0; i < root.length(); i++) {
+                        JSONObject single = root.getJSONObject(i);
+                        String strCustName = single.getString("strCustName");
+                        String strCustDesc = single.getString("strCustDesc");
+                        String Uid = single.getString("Uid");
+
+                        CustomerModel model = new CustomerModel(strCustName, strCustDesc, Uid);
+                        listOfCustomer.add(model);
+                    }
+                    InsertCustomerOnBackground insertCustomerOnBackground = new InsertCustomerOnBackground(listOfCustomer);
+                    insertCustomerOnBackground.execute();
+
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "" + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void intiUI() {
@@ -127,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements Authentication {
     }
 
     private void getData() {
+        getCustomers();
         APIs apIs = ApiClient.getClient().create(APIs.class);
         Call<ResponseBody> call = apIs.getUsers("7");
         call.enqueue(new Callback<ResponseBody>() {
@@ -173,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements Authentication {
                 String pin = passwordField.getText().toString().trim();
                 if (pin.equals(pinCode)) {
                     Toast.makeText(MainActivity.this, "Log In Success!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MainActivity.this, HomeActivity.class));
                 } else {
                     Toast.makeText(MainActivity.this, "Wrong Credential!", Toast.LENGTH_SHORT).show();
                 }
@@ -180,5 +224,39 @@ public class MainActivity extends AppCompatActivity implements Authentication {
                 passwordField.setText("");
             }
         });
+    }
+
+
+    public class InsertCustomerOnBackground extends AsyncTask<List<CustomerModel>, Integer, Long> {
+        List<CustomerModel> list;
+
+        public InsertCustomerOnBackground(List<CustomerModel> list) {
+            this.list = list;
+        }
+
+        @Override
+        protected Long doInBackground(List<CustomerModel>... lists) {
+
+            for (int i = 0; i < list.size(); i++) {
+                CustomerModel model = list.get(i);
+                long id = databaseAdapter.insertCustomerData(model.getStrCustName(), model.getStrCustDesc(), model.getUid());
+                Log.d("INSERT_STATUS", "" + id);
+            }
+
+            return (long) 1;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+            if (aLong == 1) {
+                Toast.makeText(MainActivity.this, "Customer synced finished!", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
