@@ -45,7 +45,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                authentication.onClick(model.getStrName(), model.getStrPinCode());
+                authentication.onClick(model.getStrName(), model.getStrPinCode(), model.getuID());
                 MainActivity.behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             }
         });

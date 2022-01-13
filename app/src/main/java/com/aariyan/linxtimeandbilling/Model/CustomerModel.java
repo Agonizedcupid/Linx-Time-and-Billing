@@ -34,4 +34,9 @@ public class CustomerModel {
     public void setUid(String uid) {
         Uid = uid;
     }
+
+    @Override
+    public String toString() {
+        return strCustName;
+    }
 }

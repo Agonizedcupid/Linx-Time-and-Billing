@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 
+import com.aariyan.linxtimeandbilling.Model.CustomerModel;
 import com.aariyan.linxtimeandbilling.Model.UserListModel;
 
 import java.util.ArrayList;
@@ -21,10 +22,7 @@ public class DatabaseAdapter {
 
     DatabaseHelper helper;
     private List<UserListModel> list = new ArrayList<>();
-    private List<UserListModel> Linelist = new ArrayList<>();
-    public static int vendorCheck = 0;
-    public static int poHeaderCheck = 0;
-    public static int poLineCheck = 0;
+    private List<CustomerModel> customerList = new ArrayList<>();
 
     public DatabaseAdapter(Context context) {
         helper = new DatabaseHelper(context);
@@ -80,6 +78,26 @@ public class DatabaseAdapter {
         return id;
     }
 
+    //Getting all the Customer
+    public List<CustomerModel> getAlLCustomer() {
+
+        customerList.clear();
+        SQLiteDatabase database = helper.getWritableDatabase();
+        String[] columns = {DatabaseHelper.UID,DatabaseHelper.strCustName, DatabaseHelper.strCustDesc, DatabaseHelper.Uid};
+        Cursor cursor = database.query(DatabaseHelper.CUSTOMER_TABLE_NAME, columns, null, null, null, null, null);
+        while (cursor.moveToNext()) {
+
+            CustomerModel model = new CustomerModel(
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3)
+            );
+            customerList.add(model);
+        }
+        return customerList;
+
+    }
+
 //
 //    public int updatePoLines(String name, int quantity) {
 //
@@ -110,7 +128,7 @@ public class DatabaseAdapter {
         private Context context;
 
         private static final String DATABASE_NAME = "linx_billing.db";
-        private static final int VERSION_NUMBER = 3;
+        private static final int VERSION_NUMBER = 5;
 
         //User Table:
         private static final String USER_TABLE_NAME = "users";

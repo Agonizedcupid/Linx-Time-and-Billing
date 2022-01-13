@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements Authentication {
     }
 
     @Override
-    public void onClick(String name, String pinCode) {
+    public void onClick(String name, String pinCode, String id) {
         userName.setText(String.format("Enter pin for %s", name));
         logInBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,7 +216,10 @@ public class MainActivity extends AppCompatActivity implements Authentication {
                 String pin = passwordField.getText().toString().trim();
                 if (pin.equals(pinCode)) {
                     Toast.makeText(MainActivity.this, "Log In Success!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(MainActivity.this, HomeActivity.class));
+                    startActivity(new Intent(MainActivity.this, HomeActivity.class)
+                            .putExtra("name", name)
+                            .putExtra("id", id)
+                    );
                 } else {
                     Toast.makeText(MainActivity.this, "Wrong Credential!", Toast.LENGTH_SHORT).show();
                 }
