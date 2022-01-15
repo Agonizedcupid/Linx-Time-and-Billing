@@ -2,10 +2,12 @@ package com.aariyan.linxtimeandbilling.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
@@ -23,6 +25,8 @@ public class HomeActivity extends AppCompatActivity {
     private List<CustomerModel> list = new ArrayList<>();
     private Spinner spinner;
 
+    private ImageView addTime,removeTime,jobs,infoList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +42,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void initUI() {
+
+        addTime = findViewById(R.id.addTime);
+        removeTime = findViewById(R.id.removeTime);
+        jobs = findViewById(R.id.jobs);
+        infoList = findViewById(R.id.list);
+
         spinner = findViewById(R.id.spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CustomerModel> adapter = new ArrayAdapter<CustomerModel>(this, android.R.layout.simple_spinner_item, list);
@@ -55,6 +65,15 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
+            }
+        });
+
+        addTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HomeActivity.this, AddTimeActivity.class);
+                intent.putExtra("name", getIntent().getStringExtra("name"));
+                startActivity(intent);
             }
         });
     }
