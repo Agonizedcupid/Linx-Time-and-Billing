@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
@@ -23,23 +24,31 @@ import com.aariyan.linxtimeandbilling.R;
 
 import java.util.Calendar;
 
-public class AddTimeActivity extends AppCompatActivity {
+public class AddTimeActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
 
     private DatePickerDialog datePickerDialog;
     private Calendar calendar;
     int day, month, year;
     String date = "";
 
-    int hour, time;
+    int hour, minute;
     private static String amPm = "";
 
-    private String startTimeDateStr,startTimeClockStr,endTimeDateStr,endTimeClockStr;
+    private String startTimeDateStr = "", startTimeClockStr = "", endTimeDateStr = "OPEN", endTimeClockStr = "";
     private ImageView startTimeDate, startTimeClock, endTimeDate, endTimeClock;
     private TextView totalTime, billableTime, startTimeText, endTimeText;
     private String spinnerSelection;
     private EditText descriptionOfWork;
     private Button saveBtn, ignoreBtn;
 
+    private static String fDate,fTime,sDate,sTime;
+
+    private static String userName = "", customerName = "";
+
+    private String[] monthName = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+
+    private TimePickerDialog timePickerDialog;
+    private String clicked = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +62,9 @@ public class AddTimeActivity extends AppCompatActivity {
 
         if (getIntent() != null) {
             setTitle(String.format("Hello %s", getIntent().getStringExtra("name")));
+
+            userName = getIntent().getStringExtra("name");
+            customerName = getIntent().getStringExtra("customerName");
         }
 
         initUI();
@@ -69,11 +81,53 @@ public class AddTimeActivity extends AppCompatActivity {
         totalTime = findViewById(R.id.totalTime);
         billableTime = findViewById(R.id.billableTime);
         descriptionOfWork = findViewById(R.id.workDescription);
+        saveBtn = findViewById(R.id.saveTime);
+        ignoreBtn = findViewById(R.id.ignoreTime);
+
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
         startTimeDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showDatePicker("start");
+            }
+        });
+        startTimeClock.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showWatch("start");
+            }
+        });
+
+        endTimeDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (TextUtils.isEmpty(startTimeText.getText().toString())) {
+//                    startTimeText.setError("Select the start time first!");
+//                    startTimeText.requestFocus();
+
+                    Toast.makeText(AddTimeActivity.this, "Select the start time first!", Toast.LENGTH_SHORT).show();
+
+                    return;
+                }
+                showDatePicker("end");
+            }
+        });
+        endTimeClock.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (TextUtils.isEmpty(startTimeText.getText().toString())) {
+                    //startTimeText.setError("Select the start time first!");
+                    //startTimeText.requestFocus();
+                    Toast.makeText(AddTimeActivity.this, "Select the start time first!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                showWatch("end");
             }
         });
 
@@ -100,39 +154,50 @@ public class AddTimeActivity extends AppCompatActivity {
         });
     }
 
-    private void showWatch(String clicked) {
+    private void showWatch(String clickeds) {
 
-        TimePickerDialog dialog = new TimePickerDialog(AddTimeActivity.this, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int i, int i1) {
-                hour = i;
-                time = i1;
+        clicked = clickeds;
+        hour = calendar.get(Calendar.HOUR_OF_DAY);
+        minute = calendar.get(Calendar.MINUTE);
+        timePickerDialog = new TimePickerDialog(this, this, hour, minute, true);
+        timePickerDialog.show();
 
-//                if (hour >= 12) {
-//                    amPm = "PM";
+//        TimePickerDialog dialog = new TimePickerDialog(AddTimeActivity.this, new TimePickerDialog.OnTimeSetListener() {
+//            @Override
+//            public void onTimeSet(TimePicker timePicker, int i, int i1) {
+//                hour = i;
+//                time = i1;
+//
+////                if (hour >= 12) {
+////                    amPm = "PM";
+////                } else {
+////                    amPm = "AM";
+////                }
+//
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.set(0, 0, 0, hour, time);
+//
+//                String time = DateFormat.format("hh:mm", calendar).toString();
+//
+//                //String taskTime = time + " " + amPm;
+//                String taskTime = time;
+//                if (clicked.equals("start")) {
+//                    startTimeClockStr = time;
+//                    startTimeText.setText(String.format("%s", startTimeDateStr + " " + startTimeClockStr));
 //                } else {
-//                    amPm = "AM";
+//                    endTimeClockStr = time;
+//                    if (endTimeDateStr.equals("OPEN")) {
+//                        endTimeDateStr = "";
+//                    }
+//                    endTimeText.setText(String.format("%s", endTimeDateStr + " " + endTimeClockStr));
 //                }
-
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(0, 0, 0, hour, time);
-
-                String time = DateFormat.format("hh:mm", calendar).toString();
-
-                //String taskTime = time + " " + amPm;
-                String taskTime = time;
-                if (clicked.equals("start")) {
-                    startTimeClockStr = time;
-                } else {
-                    endTimeClockStr = time;
-                }
-
-                Toast.makeText(AddTimeActivity.this, "You've selected " + taskTime, Toast.LENGTH_SHORT).show();
-            }
-        }, 24, 0, true);
-
-        dialog.updateTime(hour, time);
-        dialog.show();
+//
+//                Toast.makeText(AddTimeActivity.this, "You've selected " + taskTime, Toast.LENGTH_SHORT).show();
+//            }
+//        //}, 24, 0, true);
+//        }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
+//        //dialog.updateTime(hour, time);
+//        dialog.show();
     }
 
     private void showDatePicker(String clicked) {
@@ -142,13 +207,20 @@ public class AddTimeActivity extends AppCompatActivity {
 
                 int j = i1 + 1;
 
-                date = i + "-" + j + "-" + i2;
+                //date = i + "-" + j + "-" + i2;
+                date = i2 + " " + monthName[j - 1] + " " + i;
+                fDate =i1+"/"+
                 //2022-1-15
-                Log.d("TEST_DATE",date);
+                Log.d("TEST_DATE", date);
                 if (clicked.equals("start")) {
                     startTimeDateStr = date;
+                    startTimeText.setText(String.format("%s", startTimeDateStr + " " + startTimeClockStr));
                 } else {
                     endTimeDateStr = date;
+                    if (endTimeDateStr.equals("OPEN")) {
+                        endTimeDateStr = "";
+                    }
+                    endTimeText.setText(String.format("%s", endTimeDateStr + " " + endTimeClockStr));
                 }
 
                 Toast.makeText(AddTimeActivity.this, "You've selected " + date, Toast.LENGTH_LONG).show();
@@ -160,5 +232,35 @@ public class AddTimeActivity extends AppCompatActivity {
         datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
 
         datePickerDialog.show();
+    }
+
+    @Override
+    public void onTimeSet(TimePicker timePicker, int i, int i1) {
+        String time = i + ":" + i1;
+        if (clicked.equals("start")) {
+            startTimeClockStr = time;
+            startTimeText.setText(String.format("%s", startTimeDateStr + " " + startTimeClockStr));
+        } else {
+            endTimeClockStr = time;
+            if (endTimeDateStr.equals("OPEN")) {
+                endTimeDateStr = "";
+            }
+            calculateTotalTime();
+            endTimeText.setText(String.format("%s", endTimeDateStr + " " + endTimeClockStr));
+        }
+    }
+
+    private void calculateTotalTime() {
+        String[] startTime = startTimeClockStr.split(":");
+        String[] endTime = endTimeClockStr.split(":");
+
+        int hour = Integer.parseInt(endTime[0]) - Integer.parseInt(startTime[0]);
+        int minutes = Integer.parseInt(endTime[1]) - Integer.parseInt(startTime[1]);
+        if (minute < 0) {
+            minute = minutes * (-1);
+        }
+
+        int totalTimes = hour * 60 + minutes;
+        totalTime.setText("" + totalTimes);
     }
 }

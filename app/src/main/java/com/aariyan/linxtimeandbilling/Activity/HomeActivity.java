@@ -25,7 +25,8 @@ public class HomeActivity extends AppCompatActivity {
     private List<CustomerModel> list = new ArrayList<>();
     private Spinner spinner;
 
-    private ImageView addTime,removeTime,jobs,infoList;
+    private ImageView addTime, removeTime, jobs, infoList;
+    private String customerName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +60,8 @@ public class HomeActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(HomeActivity.this, "" + adapterView.getItemAtPosition(i), Toast.LENGTH_SHORT).show();
+                customerName = adapterView.getItemAtPosition(i).toString();
+                //Toast.makeText(HomeActivity.this, "" + adapterView.getItemAtPosition(i), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -73,6 +75,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(HomeActivity.this, AddTimeActivity.class);
                 intent.putExtra("name", getIntent().getStringExtra("name"));
+                intent.putExtra("customerName", customerName);
                 startActivity(intent);
             }
         });
