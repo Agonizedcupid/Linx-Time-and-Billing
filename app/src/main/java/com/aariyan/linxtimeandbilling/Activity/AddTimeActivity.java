@@ -1,9 +1,12 @@
 package com.aariyan.linxtimeandbilling.Activity;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -20,9 +23,15 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.aariyan.linxtimeandbilling.Database.DatabaseAdapter;
+import com.aariyan.linxtimeandbilling.MainActivity;
 import com.aariyan.linxtimeandbilling.R;
 
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class AddTimeActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
 
@@ -41,7 +50,7 @@ public class AddTimeActivity extends AppCompatActivity implements TimePickerDial
     private EditText descriptionOfWork;
     private Button saveBtn, ignoreBtn;
 
-    private static String fDate,fTime,sDate,sTime;
+    private static String fDate, fTime, sDate, sTime;
 
     private static String userName = "", customerName = "";
 
@@ -50,10 +59,17 @@ public class AddTimeActivity extends AppCompatActivity implements TimePickerDial
     private TimePickerDialog timePickerDialog;
     private String clicked = "";
 
+    public static DecimalFormat df = new DecimalFormat("#.##");
+    private static long totalMinutes;
+
+    DatabaseAdapter databaseAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_time);
+
+        databaseAdapter = new DatabaseAdapter(AddTimeActivity.this);
 
         calendar = Calendar.getInstance();
         day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -87,7 +103,13 @@ public class AddTimeActivity extends AppCompatActivity implements TimePickerDial
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (endTimeDateStr.equals("OPEN")) {
+                    //Save the value on database:
+                    saveSQLite();
+                } else {
+                    //Mark the job is done:
+                    showTheAlertDialog();
+                }
             }
         });
 
@@ -154,6 +176,44 @@ public class AddTimeActivity extends AppCompatActivity implements TimePickerDial
         });
     }
 
+    private void showTheAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(AddTimeActivity.this);
+        builder.setTitle("Confirm");
+        builder.setMessage("Do you wish to mark this job as completed?");
+
+        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                startActivity(new Intent(AddTimeActivity.this, HomeActivity.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                dialogInterface.cancel();
+            }
+        });
+
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+
+        builder.create();
+        builder.show();
+    }
+
+    private void saveSQLite() {
+        long id = databaseAdapter.insertTimingData(userName, customerName, startTimeText.getText().toString(), billableTime.getText().toString(),
+                "OPEN", totalTime.getText().toString(), spinnerSelection, descriptionOfWork.getText().toString());
+        if (id > 0) {
+            Toast.makeText(AddTimeActivity.this, "Saved!", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(AddTimeActivity.this, HomeActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            );
+        } else {
+            Toast.makeText(AddTimeActivity.this, "Facing error to save!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void showWatch(String clickeds) {
 
         clicked = clickeds;
@@ -209,17 +269,18 @@ public class AddTimeActivity extends AppCompatActivity implements TimePickerDial
 
                 //date = i + "-" + j + "-" + i2;
                 date = i2 + " " + monthName[j - 1] + " " + i;
-                fDate =i1+"/"+
                 //2022-1-15
                 Log.d("TEST_DATE", date);
                 if (clicked.equals("start")) {
                     startTimeDateStr = date;
+                    fDate = i1 + "/" + i2 + "/" + i;
                     startTimeText.setText(String.format("%s", startTimeDateStr + " " + startTimeClockStr));
                 } else {
                     endTimeDateStr = date;
                     if (endTimeDateStr.equals("OPEN")) {
                         endTimeDateStr = "";
                     }
+                    sDate = i1 + "/" + i2 + "/" + i;
                     endTimeText.setText(String.format("%s", endTimeDateStr + " " + endTimeClockStr));
                 }
 
@@ -239,28 +300,58 @@ public class AddTimeActivity extends AppCompatActivity implements TimePickerDial
         String time = i + ":" + i1;
         if (clicked.equals("start")) {
             startTimeClockStr = time;
+            fTime = startTimeClockStr;
             startTimeText.setText(String.format("%s", startTimeDateStr + " " + startTimeClockStr));
         } else {
             endTimeClockStr = time;
             if (endTimeDateStr.equals("OPEN")) {
                 endTimeDateStr = "";
             }
+            sTime = endTimeClockStr;
             calculateTotalTime();
             endTimeText.setText(String.format("%s", endTimeDateStr + " " + endTimeClockStr));
         }
     }
 
     private void calculateTotalTime() {
-        String[] startTime = startTimeClockStr.split(":");
-        String[] endTime = endTimeClockStr.split(":");
+        //Finding total time:
+//        String[] startTime = startTimeClockStr.split(":");
+//        String[] endTime = endTimeClockStr.split(":");
+//
+//        int hour = Integer.parseInt(endTime[0]) - Integer.parseInt(startTime[0]);
+//        int minutes = Integer.parseInt(endTime[1]) - Integer.parseInt(startTime[1]);
+//        if (minute < 0) {
+//            minute = minutes * (-1);
+//        }
+//
+//        int totalTimes = hour * 60 + minutes;
+//        totalTime.setText("" + totalTimes);
 
-        int hour = Integer.parseInt(endTime[0]) - Integer.parseInt(startTime[0]);
-        int minutes = Integer.parseInt(endTime[1]) - Integer.parseInt(startTime[1]);
-        if (minute < 0) {
-            minute = minutes * (-1);
+        String firstDateTime = fDate + " " + fTime;
+        String secondDateTime = sDate + " " + sTime;
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+
+        Date d1 = null;
+        Date d2 = null;
+
+        try {
+            d1 = format.parse(firstDateTime);
+            d2 = format.parse(secondDateTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
-        int totalTimes = hour * 60 + minutes;
-        totalTime.setText("" + totalTimes);
+        //in milliseconds
+        assert d2 != null;
+        assert d1 != null;
+        long diff = d2.getTime() - d1.getTime();
+
+        long diffDays = diff / (24 * 60 * 60 * 1000);
+        long diffMinutes = diff / (60 * 1000) % 60;
+        long diffHours = diff / (60 * 60 * 1000) % 24;
+        totalMinutes = (diffDays * 24 * 60 + diffMinutes + diffHours * 60);
+
+        totalTime.setText("" + totalMinutes);
+        billableTime.setText("" + df.format((totalMinutes / 60)));
     }
 }

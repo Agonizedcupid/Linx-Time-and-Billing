@@ -98,6 +98,35 @@ public class DatabaseAdapter {
 
     }
 
+    private static final String USER_NAME = "userName";
+    private static final String CUSTOMER_NAME = "customerName";
+    private static final String START_DATE = "startDate";
+    private static final String BILLABLE_TIME = "billableTime";
+    private static final String STATUS = "status";
+    private static final String TOTAL_TIME = "totalTime";
+    private static final String WORK_TYPE = "workType";
+    private static final String DESCRIPTION = "description";
+
+    //Insert customer data
+    public long insertTimingData(String USER_NAME, String CUSTOMER_NAME, String START_DATE,String BILLABLE_TIME,
+                                 String STATUS,String TOTAL_TIME, String WORK_TYPE,String DESCRIPTION) {
+
+        SQLiteDatabase database = helper.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DatabaseHelper.USER_NAME, USER_NAME);
+        contentValues.put(DatabaseHelper.CUSTOMER_NAME, CUSTOMER_NAME);
+        contentValues.put(DatabaseHelper.START_DATE, START_DATE);
+        contentValues.put(DatabaseHelper.BILLABLE_TIME, BILLABLE_TIME);
+        contentValues.put(DatabaseHelper.STATUS, STATUS);
+        contentValues.put(DatabaseHelper.TOTAL_TIME, TOTAL_TIME);
+        contentValues.put(DatabaseHelper.WORK_TYPE, WORK_TYPE);
+        contentValues.put(DatabaseHelper.DESCRIPTION, DESCRIPTION);
+
+        long id = database.insert(DatabaseHelper.TIMING_TABLE_NAME, null, contentValues);
+        return id;
+    }
+
 //
 //    public int updatePoLines(String name, int quantity) {
 //
@@ -128,7 +157,7 @@ public class DatabaseAdapter {
         private Context context;
 
         private static final String DATABASE_NAME = "linx_billing.db";
-        private static final int VERSION_NUMBER = 5;
+        private static final int VERSION_NUMBER = 6;
 
         //User Table:
         private static final String USER_TABLE_NAME = "users";
@@ -160,6 +189,31 @@ public class DatabaseAdapter {
         private static final String DROP_CUSTOMER_TABLE = "DROP TABLE IF EXISTS " + CUSTOMER_TABLE_NAME;
 
 
+
+        //Timing table:
+        private static final String TIMING_TABLE_NAME = "timing";
+        private static final String USER_NAME = "userName";
+        private static final String CUSTOMER_NAME = "customerName";
+        private static final String START_DATE = "startDate";
+        private static final String BILLABLE_TIME = "billableTime";
+        private static final String STATUS = "status";
+        private static final String TOTAL_TIME = "totalTime";
+        private static final String WORK_TYPE = "workType";
+        private static final String DESCRIPTION = "description";
+        //Creating the table:
+        private static final String CREATE_TIMING_TABLE = "CREATE TABLE " + TIMING_TABLE_NAME
+                + " (" + UID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + USER_NAME + " VARCHAR(255),"
+                + CUSTOMER_NAME + " VARCHAR(255),"
+                + START_DATE + " VARCHAR(255),"
+                + BILLABLE_TIME + " VARCHAR(255),"
+                + STATUS + " VARCHAR(255),"
+                + TOTAL_TIME + " VARCHAR(255),"
+                + WORK_TYPE + " VARCHAR(255),"
+                + DESCRIPTION + " VARCHAR(255));";
+        private static final String DROP_TIMING_TABLE = "DROP TABLE IF EXISTS " + TIMING_TABLE_NAME;
+
+
         public DatabaseHelper(@Nullable Context context) {
             super(context, DATABASE_NAME, null, VERSION_NUMBER);
             this.context = context;
@@ -171,6 +225,7 @@ public class DatabaseAdapter {
             try {
                 db.execSQL(CREATE_USER_TABLE);
                 db.execSQL(CREATE_CUSTOMER_TABLE);
+                db.execSQL(CREATE_TIMING_TABLE);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -182,6 +237,7 @@ public class DatabaseAdapter {
             try {
                 db.execSQL(DROP_USER_TABLE);
                 db.execSQL(DROP_CUSTOMER_TABLE);
+                db.execSQL(DROP_TIMING_TABLE);
                 onCreate(db);
             } catch (Exception e) {
                 e.printStackTrace();

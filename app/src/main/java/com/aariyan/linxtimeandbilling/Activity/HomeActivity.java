@@ -1,6 +1,8 @@
 package com.aariyan.linxtimeandbilling.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private ImageView addTime, removeTime, jobs, infoList;
     private String customerName = "";
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,9 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void initUI() {
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         addTime = findViewById(R.id.addTime);
         removeTime = findViewById(R.id.removeTime);
