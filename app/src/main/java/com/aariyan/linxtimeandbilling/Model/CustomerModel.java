@@ -37,6 +37,6 @@ public class CustomerModel {
 
     @Override
     public String toString() {
-        return strCustName;
+        return strCustDesc;
     }
 }

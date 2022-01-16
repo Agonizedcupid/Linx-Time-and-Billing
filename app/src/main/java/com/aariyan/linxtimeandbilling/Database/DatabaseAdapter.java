@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 
 import com.aariyan.linxtimeandbilling.Model.CustomerModel;
+import com.aariyan.linxtimeandbilling.Model.TimingModel;
 import com.aariyan.linxtimeandbilling.Model.UserListModel;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class DatabaseAdapter {
     DatabaseHelper helper;
     private List<UserListModel> list = new ArrayList<>();
     private List<CustomerModel> customerList = new ArrayList<>();
+    private List<TimingModel> timingList = new ArrayList<>();
 
     public DatabaseAdapter(Context context) {
         helper = new DatabaseHelper(context);
@@ -98,16 +100,7 @@ public class DatabaseAdapter {
 
     }
 
-    private static final String USER_NAME = "userName";
-    private static final String CUSTOMER_NAME = "customerName";
-    private static final String START_DATE = "startDate";
-    private static final String BILLABLE_TIME = "billableTime";
-    private static final String STATUS = "status";
-    private static final String TOTAL_TIME = "totalTime";
-    private static final String WORK_TYPE = "workType";
-    private static final String DESCRIPTION = "description";
-
-    //Insert customer data
+    //Insert Timing data
     public long insertTimingData(String USER_NAME, String CUSTOMER_NAME, String START_DATE,String BILLABLE_TIME,
                                  String STATUS,String TOTAL_TIME, String WORK_TYPE,String DESCRIPTION) {
 
@@ -125,6 +118,37 @@ public class DatabaseAdapter {
 
         long id = database.insert(DatabaseHelper.TIMING_TABLE_NAME, null, contentValues);
         return id;
+    }
+
+
+    //getTiming
+    public List<TimingModel> getTiming(String userName,String customerName) {
+
+        timingList.clear();
+        SQLiteDatabase database = helper.getWritableDatabase();
+        String selection = DatabaseHelper.USER_NAME+" LIKE ? AND "+DatabaseHelper.CUSTOMER_NAME+" LIKE ?";
+
+        String[] args = {userName,customerName};
+        String[] columns = {DatabaseHelper.UID,DatabaseHelper.USER_NAME, DatabaseHelper.CUSTOMER_NAME, DatabaseHelper.START_DATE,
+        DatabaseHelper.BILLABLE_TIME,DatabaseHelper.STATUS,DatabaseHelper.TOTAL_TIME,DatabaseHelper.WORK_TYPE,DatabaseHelper.DESCRIPTION};
+
+        Cursor cursor = database.query(DatabaseHelper.TIMING_TABLE_NAME, columns, selection, args, null, null, null);
+        while (cursor.moveToNext()) {
+
+            TimingModel model = new TimingModel(
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    cursor.getString(5),
+                    cursor.getString(6),
+                    cursor.getString(7),
+                    cursor.getString(8)
+            );
+            timingList.add(model);
+        }
+        return timingList;
+
     }
 
 //

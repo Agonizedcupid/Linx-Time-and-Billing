@@ -14,9 +14,11 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
+import com.aariyan.linxtimeandbilling.Adapter.TimingAdapter;
 import com.aariyan.linxtimeandbilling.Database.DatabaseAdapter;
 import com.aariyan.linxtimeandbilling.MainActivity;
 import com.aariyan.linxtimeandbilling.Model.CustomerModel;
+import com.aariyan.linxtimeandbilling.Model.TimingModel;
 import com.aariyan.linxtimeandbilling.R;
 
 import java.util.ArrayList;
@@ -30,6 +32,11 @@ public class HomeActivity extends AppCompatActivity {
     private ImageView addTime, removeTime, jobs, infoList;
     private String customerName = "";
     private RecyclerView recyclerView;
+    private String userName = "";
+
+    DatabaseAdapter databaseAdapter;
+
+    TimingAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +44,24 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         if (getIntent() != null) {
-            setTitle(String.format("Hello %s", getIntent().getStringExtra("name")));
+            userName = getIntent().getStringExtra("name");
+            setTitle(String.format("Hello %s", userName));
         }
-        DatabaseAdapter databaseAdapter = new DatabaseAdapter(HomeActivity.this);
+        databaseAdapter = new DatabaseAdapter(HomeActivity.this);
         list = databaseAdapter.getAlLCustomer();
 
         initUI();
+
+        loadData();
+    }
+
+    private void loadData() {
+        List<TimingModel> list = databaseAdapter.getTiming(userName, customerName);
+        //Toast.makeText(HomeActivity.this, "Size: " + list.size(), Toast.LENGTH_SHORT).show();
+        adapter = new TimingAdapter(HomeActivity.this, list);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
     }
 
     private void initUI() {
@@ -67,6 +86,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 customerName = adapterView.getItemAtPosition(i).toString();
+                loadData();
                 //Toast.makeText(HomeActivity.this, "" + adapterView.getItemAtPosition(i), Toast.LENGTH_SHORT).show();
             }
 
