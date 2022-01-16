@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.aariyan.linxtimeandbilling.Adapter.TimingAdapter;
 import com.aariyan.linxtimeandbilling.Database.DatabaseAdapter;
+import com.aariyan.linxtimeandbilling.Interface.DeleteTiming;
 import com.aariyan.linxtimeandbilling.MainActivity;
 import com.aariyan.linxtimeandbilling.Model.CustomerModel;
 import com.aariyan.linxtimeandbilling.Model.TimingModel;
@@ -24,15 +25,15 @@ import com.aariyan.linxtimeandbilling.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements DeleteTiming {
 
     private List<CustomerModel> list = new ArrayList<>();
     private Spinner spinner;
 
     private ImageView addTime, removeTime, jobs, infoList;
-    private String customerName = "";
+    private static String customerName = "";
     private RecyclerView recyclerView;
-    private String userName = "";
+    private static String userName = "";
 
     DatabaseAdapter databaseAdapter;
 
@@ -52,13 +53,13 @@ public class HomeActivity extends AppCompatActivity {
 
         initUI();
 
-        loadData();
+        //loadData();
     }
 
     private void loadData() {
         List<TimingModel> list = databaseAdapter.getTiming(userName, customerName);
         //Toast.makeText(HomeActivity.this, "Size: " + list.size(), Toast.LENGTH_SHORT).show();
-        adapter = new TimingAdapter(HomeActivity.this, list);
+        adapter = new TimingAdapter(HomeActivity.this, list, this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
@@ -105,5 +106,11 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void deleteTiming(String userName, String customerName, int id) {
+        databaseAdapter.deleteTiming(userName, customerName,id);
+        loadData();
     }
 }

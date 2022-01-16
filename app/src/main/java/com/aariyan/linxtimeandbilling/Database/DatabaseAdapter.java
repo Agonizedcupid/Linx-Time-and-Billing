@@ -85,7 +85,7 @@ public class DatabaseAdapter {
 
         customerList.clear();
         SQLiteDatabase database = helper.getWritableDatabase();
-        String[] columns = {DatabaseHelper.UID,DatabaseHelper.strCustName, DatabaseHelper.strCustDesc, DatabaseHelper.Uid};
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.strCustName, DatabaseHelper.strCustDesc, DatabaseHelper.Uid};
         Cursor cursor = database.query(DatabaseHelper.CUSTOMER_TABLE_NAME, columns, null, null, null, null, null);
         while (cursor.moveToNext()) {
 
@@ -101,8 +101,8 @@ public class DatabaseAdapter {
     }
 
     //Insert Timing data
-    public long insertTimingData(String USER_NAME, String CUSTOMER_NAME, String START_DATE,String BILLABLE_TIME,
-                                 String STATUS,String TOTAL_TIME, String WORK_TYPE,String DESCRIPTION) {
+    public long insertTimingData(String USER_NAME, String CUSTOMER_NAME, String START_DATE, String BILLABLE_TIME,
+                                 String STATUS, String TOTAL_TIME, String WORK_TYPE, String DESCRIPTION) {
 
         SQLiteDatabase database = helper.getWritableDatabase();
 
@@ -122,20 +122,25 @@ public class DatabaseAdapter {
 
 
     //getTiming
-    public List<TimingModel> getTiming(String userName,String customerName) {
+    public List<TimingModel> getTiming(String userName, String customerName) {
 
         timingList.clear();
         SQLiteDatabase database = helper.getWritableDatabase();
-        String selection = DatabaseHelper.USER_NAME+" LIKE ? AND "+DatabaseHelper.CUSTOMER_NAME+" LIKE ?";
+        //select * from tableName where name = ? and customerName = ?:
+        // String selection = DatabaseHelper.USER_NAME+" where ? AND "+DatabaseHelper.CUSTOMER_NAME+" LIKE ?";
+        String selection = DatabaseHelper.USER_NAME + "=?" + " and " + DatabaseHelper.CUSTOMER_NAME + "=?";
 
-        String[] args = {userName,customerName};
-        String[] columns = {DatabaseHelper.UID,DatabaseHelper.USER_NAME, DatabaseHelper.CUSTOMER_NAME, DatabaseHelper.START_DATE,
-        DatabaseHelper.BILLABLE_TIME,DatabaseHelper.STATUS,DatabaseHelper.TOTAL_TIME,DatabaseHelper.WORK_TYPE,DatabaseHelper.DESCRIPTION};
+        Log.d("NAME_TEST", userName + " -> " + customerName);
+
+        String[] args = {userName, customerName};
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.USER_NAME, DatabaseHelper.CUSTOMER_NAME, DatabaseHelper.START_DATE,
+                DatabaseHelper.BILLABLE_TIME, DatabaseHelper.STATUS, DatabaseHelper.TOTAL_TIME, DatabaseHelper.WORK_TYPE, DatabaseHelper.DESCRIPTION};
 
         Cursor cursor = database.query(DatabaseHelper.TIMING_TABLE_NAME, columns, selection, args, null, null, null);
         while (cursor.moveToNext()) {
 
             TimingModel model = new TimingModel(
+                    cursor.getInt(0),
                     cursor.getString(1),
                     cursor.getString(2),
                     cursor.getString(3),
@@ -149,6 +154,17 @@ public class DatabaseAdapter {
         }
         return timingList;
 
+    }
+
+    //Delete timing
+    public long deleteTiming(String userName, String customerName, int id) {
+        SQLiteDatabase database = helper.getWritableDatabase();
+        String selection = DatabaseHelper.USER_NAME + " LIKE ? AND " + DatabaseHelper.CUSTOMER_NAME + " LIKE ? AND " + DatabaseHelper.UID + " LIKE ?";
+
+        String[] args = {userName, customerName, ""+id};
+        long ids = database.delete(DatabaseHelper.TIMING_TABLE_NAME, selection, args);
+
+        return ids;
     }
 
 //
@@ -211,7 +227,6 @@ public class DatabaseAdapter {
                 + strCustDesc + " VARCHAR(255),"
                 + Uid + " VARCHAR(255));";
         private static final String DROP_CUSTOMER_TABLE = "DROP TABLE IF EXISTS " + CUSTOMER_TABLE_NAME;
-
 
 
         //Timing table:

@@ -1,10 +1,12 @@
 package com.aariyan.linxtimeandbilling.Model;
 
 public class TimingModel {
+    private int UID;
     private String userName,customerName,startDate,billableTime,status,totalTime,workType,description;
     public TimingModel(){}
 
-    public TimingModel(String userName, String customerName, String startDate, String billableTime, String status, String totalTime, String workType, String description) {
+    public TimingModel(int UID,String userName, String customerName, String startDate, String billableTime, String status, String totalTime, String workType, String description) {
+        this.UID = UID;
         this.userName = userName;
         this.customerName = customerName;
         this.startDate = startDate;
@@ -13,6 +15,14 @@ public class TimingModel {
         this.totalTime = totalTime;
         this.workType = workType;
         this.description = description;
+    }
+
+    public int getUID() {
+        return UID;
+    }
+
+    public void setUID(int UID) {
+        this.UID = UID;
     }
 
     public String getUserName() {

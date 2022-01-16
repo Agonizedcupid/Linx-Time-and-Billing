@@ -4,11 +4,14 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.aariyan.linxtimeandbilling.Interface.DeleteTiming;
 import com.aariyan.linxtimeandbilling.Model.TimingModel;
 import com.aariyan.linxtimeandbilling.R;
 
@@ -18,10 +21,12 @@ public class TimingAdapter extends RecyclerView.Adapter<TimingAdapter.ViewHolder
 
     private Context context;
     private List<TimingModel> list;
+    DeleteTiming deleteTiming;
 
-    public TimingAdapter(Context context,List<TimingModel> list) {
+    public TimingAdapter(Context context,List<TimingModel> list, DeleteTiming deleteTiming) {
         this.context = context;
         this.list = list;
+        this.deleteTiming = deleteTiming;
     }
 
     @NonNull
@@ -35,6 +40,15 @@ public class TimingAdapter extends RecyclerView.Adapter<TimingAdapter.ViewHolder
         TimingModel model = list.get(position);
         holder.status.setText(model.getStatus());
         holder.startDate.setText(model.getStartDate());
+
+        Toast.makeText(context, ""+model.getUID(), Toast.LENGTH_SHORT).show();
+
+        holder.deleteTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteTiming.deleteTiming(model.getUserName(),model.getCustomerName(), model.getUID());
+            }
+        });
     }
 
     @Override
@@ -45,11 +59,13 @@ public class TimingAdapter extends RecyclerView.Adapter<TimingAdapter.ViewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private TextView startDate, status;
+        private ImageView deleteTime;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             startDate = itemView.findViewById(R.id.startDate);
             status = itemView.findViewById(R.id.status);
+            deleteTime = itemView.findViewById(R.id.deleteTime);
         }
     }
 }

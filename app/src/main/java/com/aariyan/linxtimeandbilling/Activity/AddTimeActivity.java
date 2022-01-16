@@ -207,8 +207,9 @@ public class AddTimeActivity extends AppCompatActivity implements TimePickerDial
         if (id > 0) {
             Toast.makeText(AddTimeActivity.this, "Saved!", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(AddTimeActivity.this, HomeActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            );
+            .putExtra("name",userName)
+            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            //finish();
         } else {
             Toast.makeText(AddTimeActivity.this, "Facing error to save!", Toast.LENGTH_SHORT).show();
         }
