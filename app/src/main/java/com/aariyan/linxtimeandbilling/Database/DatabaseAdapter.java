@@ -25,6 +25,7 @@ public class DatabaseAdapter {
     private List<UserListModel> list = new ArrayList<>();
     private List<CustomerModel> customerList = new ArrayList<>();
     private List<TimingModel> timingList = new ArrayList<>();
+    private List<TimingModel> allJob = new ArrayList<>();
 
     public DatabaseAdapter(Context context) {
         helper = new DatabaseHelper(context);
@@ -153,6 +154,34 @@ public class DatabaseAdapter {
             timingList.add(model);
         }
         return timingList;
+
+    }
+
+    //getTiming
+    public List<TimingModel> getAllJob() {
+
+        allJob.clear();
+        SQLiteDatabase database = helper.getWritableDatabase();
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.USER_NAME, DatabaseHelper.CUSTOMER_NAME, DatabaseHelper.START_DATE,
+                DatabaseHelper.BILLABLE_TIME, DatabaseHelper.STATUS, DatabaseHelper.TOTAL_TIME, DatabaseHelper.WORK_TYPE, DatabaseHelper.DESCRIPTION};
+
+        Cursor cursor = database.query(DatabaseHelper.TIMING_TABLE_NAME, columns, null, null, null, null, null);
+        while (cursor.moveToNext()) {
+
+            TimingModel model = new TimingModel(
+                    cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    cursor.getString(5),
+                    cursor.getString(6),
+                    cursor.getString(7),
+                    cursor.getString(8)
+            );
+            allJob.add(model);
+        }
+        return allJob;
 
     }
 

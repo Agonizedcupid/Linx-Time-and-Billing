@@ -75,6 +75,13 @@ public class HomeActivity extends AppCompatActivity implements DeleteTiming {
         jobs = findViewById(R.id.jobs);
         infoList = findViewById(R.id.list);
 
+        jobs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(HomeActivity.this,JobsActivity.class));
+            }
+        });
+
         spinner = findViewById(R.id.spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CustomerModel> adapter = new ArrayAdapter<CustomerModel>(this, android.R.layout.simple_spinner_item, list);

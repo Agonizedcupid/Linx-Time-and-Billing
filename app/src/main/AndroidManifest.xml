@@ -13,6 +13,9 @@
         android:theme="@style/Theme.LinxTimeAndBilling"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".Activity.JobsActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activity.AddTimeActivity"
             android:exported="false" />
         <activity
