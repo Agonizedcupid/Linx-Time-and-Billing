@@ -105,7 +105,7 @@ public class AddTimeActivity extends AppCompatActivity implements TimePickerDial
             public void onClick(View view) {
                 if (endTimeDateStr.equals("OPEN")) {
                     //Save the value on database:
-                    saveSQLite();
+                    saveSQLite(endTimeDateStr);
                 } else {
                     //Mark the job is done:
                     showTheAlertDialog();
@@ -184,8 +184,9 @@ public class AddTimeActivity extends AppCompatActivity implements TimePickerDial
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                startActivity(new Intent(AddTimeActivity.this, HomeActivity.class)
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+//                startActivity(new Intent(AddTimeActivity.this, HomeActivity.class)
+//                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                finish();
                 dialogInterface.cancel();
             }
         });
@@ -193,6 +194,10 @@ public class AddTimeActivity extends AppCompatActivity implements TimePickerDial
         builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+
+                saveSQLite(endTimeText.getText().toString());
+                finish();
+                //startActivity(new Intent(AddTimeActivity.this, HomeActivity.class));
                 dialogInterface.cancel();
             }
         });
@@ -201,14 +206,14 @@ public class AddTimeActivity extends AppCompatActivity implements TimePickerDial
         builder.show();
     }
 
-    private void saveSQLite() {
-        long id = databaseAdapter.insertTimingData(userName, customerName, startTimeText.getText().toString(), billableTime.getText().toString(),
-                "OPEN", totalTime.getText().toString(), spinnerSelection, descriptionOfWork.getText().toString());
+    private void saveSQLite(String endTime) {
+        long id = databaseAdapter.insertTimingData(userName, customerName, "" + startTimeText.getText().toString(), billableTime.getText().toString(),
+                "" + endTime, totalTime.getText().toString(), spinnerSelection, descriptionOfWork.getText().toString());
         if (id > 0) {
             Toast.makeText(AddTimeActivity.this, "Saved!", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(AddTimeActivity.this, HomeActivity.class)
-            .putExtra("name",userName)
-            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    .putExtra("name", userName)
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             //finish();
         } else {
             Toast.makeText(AddTimeActivity.this, "Facing error to save!", Toast.LENGTH_SHORT).show();

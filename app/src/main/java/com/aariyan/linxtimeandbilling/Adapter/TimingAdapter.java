@@ -23,7 +23,7 @@ public class TimingAdapter extends RecyclerView.Adapter<TimingAdapter.ViewHolder
     private List<TimingModel> list;
     DeleteTiming deleteTiming;
 
-    public TimingAdapter(Context context,List<TimingModel> list, DeleteTiming deleteTiming) {
+    public TimingAdapter(Context context, List<TimingModel> list, DeleteTiming deleteTiming) {
         this.context = context;
         this.list = list;
         this.deleteTiming = deleteTiming;
@@ -40,13 +40,12 @@ public class TimingAdapter extends RecyclerView.Adapter<TimingAdapter.ViewHolder
         TimingModel model = list.get(position);
         holder.status.setText(model.getStatus());
         holder.startDate.setText(model.getStartDate());
-
-        Toast.makeText(context, ""+model.getUID(), Toast.LENGTH_SHORT).show();
+        holder.totalTime.setText(model.getTotalTime());
 
         holder.deleteTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteTiming.deleteTiming(model.getUserName(),model.getCustomerName(), model.getUID());
+                deleteTiming.deleteTiming(model.getUserName(), model.getCustomerName(), model.getUID());
             }
         });
     }
@@ -58,7 +57,7 @@ public class TimingAdapter extends RecyclerView.Adapter<TimingAdapter.ViewHolder
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView startDate, status;
+        private TextView startDate, status, totalTime;
         private ImageView deleteTime;
 
         public ViewHolder(@NonNull View itemView) {
@@ -66,6 +65,7 @@ public class TimingAdapter extends RecyclerView.Adapter<TimingAdapter.ViewHolder
             startDate = itemView.findViewById(R.id.startDate);
             status = itemView.findViewById(R.id.status);
             deleteTime = itemView.findViewById(R.id.deleteTime);
+            totalTime = itemView.findViewById(R.id.totalTimes);
         }
     }
 }
